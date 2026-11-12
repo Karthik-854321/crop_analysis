@@ -10,11 +10,244 @@ from src.charts import production_trend, yield_trend, region_comparison
 
 st.set_page_config(page_title="Crop Production Analysis", page_icon="🌾", layout="wide")
 
-st.title("Crop Production Analysis System")
-st.caption("Explore historical crop production, cultivated area, rainfall, and yield. Descriptive analysis only.")
+st.markdown(
+    """
+    <style>
+    :root {
+        --field-ink: #20362b;
+        --field-muted: #68766b;
+        --field-green: #315b43;
+        --field-green-dark: #244734;
+        --field-sage: #e6ecdf;
+        --field-paper: #f5f4ed;
+        --field-clay: #eee9dc;
+        --field-line: #dce2d5;
+        --clay-shadow: 7px 7px 18px rgba(63, 75, 58, 0.10),
+                       -6px -6px 16px rgba(255, 255, 250, 0.82);
+    }
+
+    .stApp {
+        background:
+            radial-gradient(ellipse at 84% 2%, rgba(221, 231, 207, 0.48), transparent 28rem),
+            var(--field-paper);
+        color: var(--field-ink);
+    }
+    [data-testid="stHeader"] { background: transparent; }
+    [data-testid="stMainBlockContainer"] {
+        max-width: 1540px;
+        padding-top: 2rem;
+        padding-bottom: 3rem;
+    }
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #edf0e7 0%, #e8ecdf 100%);
+        border-right: 1px solid rgba(49, 91, 67, 0.10);
+    }
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p {
+        color: var(--field-muted);
+    }
+    .field-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        margin: 0.25rem 0 1.8rem;
+    }
+    .field-brand-mark {
+        display: grid;
+        place-items: center;
+        width: 2.8rem;
+        height: 2.8rem;
+        border-radius: 1rem;
+        background: linear-gradient(145deg, #f8f8ef, #dce5d5);
+        box-shadow: var(--clay-shadow);
+        color: var(--field-green);
+        font-size: 1.3rem;
+    }
+    .field-brand-name {
+        color: var(--field-ink);
+        font-size: 1rem;
+        font-weight: 750;
+        letter-spacing: -0.02em;
+    }
+    .field-brand-caption {
+        margin-top: 0.15rem;
+        color: var(--field-muted);
+        font-size: 0.72rem;
+    }
+    .field-hero {
+        position: relative;
+        overflow: hidden;
+        margin: 0 0 1.8rem;
+        padding: clamp(1.6rem, 3vw, 2.6rem);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 1.8rem;
+        background: linear-gradient(115deg, #294a37 0%, #3c674b 64%, #68845a 100%);
+        box-shadow: 10px 12px 26px rgba(42, 66, 47, 0.17),
+                    inset 1px 1px 0 rgba(255, 255, 255, 0.18);
+        color: #f8f7ed;
+    }
+    .field-hero::after {
+        position: absolute;
+        top: -7rem;
+        right: -3rem;
+        width: 22rem;
+        height: 22rem;
+        border: 1px solid rgba(247, 244, 224, 0.17);
+        border-radius: 50%;
+        box-shadow: 0 0 0 2.5rem rgba(247, 244, 224, 0.035),
+                    0 0 0 5rem rgba(247, 244, 224, 0.025);
+        content: "";
+        pointer-events: none;
+    }
+    .field-eyebrow {
+        margin-bottom: 0.65rem;
+        color: #d9e3ca;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+    }
+    .field-hero h1 {
+        position: relative;
+        z-index: 1;
+        margin: 0;
+        color: #fffdf4;
+        font-size: clamp(2rem, 4vw, 3.15rem);
+        font-weight: 720;
+        letter-spacing: -0.055em;
+        line-height: 1.1;
+    }
+    .field-hero p {
+        position: relative;
+        z-index: 1;
+        max-width: 42rem;
+        margin: 0.85rem 0 0;
+        color: #e3eadc;
+        font-size: 1rem;
+        line-height: 1.65;
+    }
+    h2, h3 { color: var(--field-ink); letter-spacing: -0.025em; }
+    [data-testid="stTabs"] [role="tablist"] {
+        gap: 0.45rem;
+        padding: 0.45rem;
+        border: 1px solid rgba(49, 91, 67, 0.08);
+        border-radius: 1.1rem;
+        background: #e9ece3;
+        box-shadow: inset 2px 2px 5px rgba(55, 70, 53, 0.07),
+                    inset -2px -2px 5px rgba(255, 255, 255, 0.7);
+    }
+    [data-testid="stTabs"] [role="tab"] {
+        display: flex;
+        align-items: center;
+        min-height: 2.7rem;
+        padding: 0.55rem 1rem;
+        border-radius: 0.8rem;
+        color: #617064 !important;
+        font-weight: 650;
+    }
+    [data-testid="stTabs"] [role="tab"][aria-selected="true"] {
+        background: #f8f8f1;
+        box-shadow: 3px 3px 8px rgba(52, 70, 52, 0.11),
+                    -2px -2px 6px rgba(255, 255, 255, 0.85);
+        color: var(--field-green-dark) !important;
+    }
+    [data-testid="stMetric"] {
+        min-height: 7.1rem;
+        padding: 1.15rem 1.25rem;
+        border: 1px solid rgba(255, 255, 255, 0.76);
+        border-radius: 1.25rem;
+        background: linear-gradient(145deg, #f7f7ef, #e9ece2);
+        box-shadow: var(--clay-shadow);
+    }
+    [data-testid="stMetricLabel"] { color: var(--field-muted); }
+    [data-testid="stMetricValue"] {
+        color: var(--field-green-dark);
+        font-weight: 750;
+        letter-spacing: -0.04em;
+    }
+    [data-testid="stFileUploader"] section,
+    [data-testid="stDataFrame"],
+    [data-testid="stTable"] {
+        border-radius: 1rem;
+    }
+    [data-testid="stFileUploader"] section {
+        border: 1px dashed #aab9a4;
+        background: rgba(235, 239, 228, 0.58);
+    }
+    [data-testid="stButton"] button,
+    [data-testid="stDownloadButton"] button {
+        min-height: 2.65rem;
+        border: 1px solid #d8dfd3;
+        border-radius: 0.85rem;
+        background: linear-gradient(145deg, #f8f8f0, #e8ece2);
+        box-shadow: 4px 4px 9px rgba(50, 67, 49, 0.09),
+                    -3px -3px 7px rgba(255, 255, 255, 0.78);
+        color: var(--field-green-dark);
+        font-weight: 650;
+        transition: transform 140ms ease, box-shadow 140ms ease;
+    }
+    [data-testid="stButton"] button:hover,
+    [data-testid="stDownloadButton"] button:hover {
+        transform: translateY(-1px);
+        border-color: #9eb29c;
+        color: var(--field-green-dark);
+        box-shadow: 5px 6px 12px rgba(50, 67, 49, 0.12),
+                    -3px -3px 7px rgba(255, 255, 255, 0.82);
+    }
+    [data-testid="stButton"] button[kind="primary"] {
+        border-color: #315b43;
+        background: linear-gradient(135deg, #3e704f, #2d563d);
+        color: #fffdf4;
+        box-shadow: 4px 5px 12px rgba(43, 82, 56, 0.22);
+    }
+    [data-testid="stButton"] button[kind="primary"]:hover {
+        border-color: #294a37;
+        color: #fffdf4;
+    }
+    [data-baseweb="select"] > div,
+    [data-baseweb="input"] > div,
+    [data-baseweb="textarea"] > div {
+        border-radius: 0.8rem;
+        background: #f8f8f1;
+    }
+    [data-testid="stAlert"] { border-radius: 0.9rem; }
+    @media (max-width: 700px) {
+        [data-testid="stMainBlockContainer"] {
+            padding: 1rem 1rem 2rem;
+        }
+        .field-hero { border-radius: 1.25rem; }
+        [data-testid="stTabs"] [role="tab"] {
+            padding-right: 0.65rem;
+            padding-left: 0.65rem;
+            font-size: 0.82rem;
+        }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
+    </style>
+    <div class="field-hero">
+        <div class="field-eyebrow">Field intelligence · historical analysis</div>
+        <h1>Crop Production<br>Analysis</h1>
+        <p>Explore production, cultivated area, rainfall, and yield across crops, regions, and seasons.</p>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 with st.sidebar:
-    st.header("Database")
+    st.markdown(
+        """
+        <div class="field-brand">
+            <div class="field-brand-mark">✳</div>
+            <div>
+                <div class="field-brand-name">Fieldwork</div>
+                <div class="field-brand-caption">Crop analysis workspace</div>
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.subheader("Database")
     st.write("Configure MySQL in `.env` or environment variables.")
     if st.button("Initialize database"):
         try:
